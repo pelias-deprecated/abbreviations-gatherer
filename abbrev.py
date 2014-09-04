@@ -15,10 +15,7 @@ def getParsedSite():
 
 def getLanguageTable(index):
 	parsed = getParsedSite()
-	for table in parsed.findAll("table"):
-		tableDic = {}
-		parseLanguage(table)
-		break
+	return parsed.findAll("table")[index]
 
 def listLanguages():
 	parsed = getParsedSite()
@@ -34,7 +31,7 @@ def parseLanguage(languageTable):
 	for abbreviationElement in languageTable.findAll("tr")[1:]:
 		print abbreviationElement
 		abbreviationList.append(parseRow(abbreviationElement))
-	return parseLanguage
+	return abbreviationList
 
 def parseRow(rowElement):
 	assert len(rowElement.findAll("td")) == 6
