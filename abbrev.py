@@ -53,5 +53,10 @@ def export(jsonFile):
 	file = open("file.json", "w")
 	file.write(jsonFile)
 
-##parseDoc()
-listLanguages()
+@click.command()
+def ex(index):
+	print "cool"
+	languageTable = getLanguageTable(index)
+	languageData = parseLanguage(languageTable)
+	jsonData = toJSON(languageData)
+	export(jsonData)
