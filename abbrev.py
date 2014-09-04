@@ -2,13 +2,18 @@ import BeautifulSoup
 import urllib2
 import click
 import json
+import sys
 
 def getParsedSite():
-	rawdata = urllib2.urlopen("http://wiki.openstreetmap.org/wiki/Name_finder:Abbreviations")
-	parsed = BeautifulSoup.BeautifulSoup(rawdata)
-	return parsed
+	try:
+		rawdata = urllib2.urlopen("http://wiki.openstreetmap.org/wiki/Name_finder:Abbreviations")
+		parsed = BeautifulSoup.BeautifulSoup(rawdata)
+		return parsed
+	except:
+		print "Couldn't reach server. Check your internet connection"
+		sys.exit()
 
-def parseDoc():
+def getLanguageTable(index):
 	parsed = getParsedSite()
 	for table in parsed.findAll("table"):
 		tableDic = {}
