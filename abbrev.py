@@ -1,6 +1,5 @@
 import BeautifulSoup
 import urllib2
-import click
 import json
 import sys
 
@@ -29,7 +28,6 @@ def listLanguages():
 def parseLanguage(languageTable):
 	abbreviationList = []
 	for abbreviationElement in languageTable.findAll("tr")[1:]:
-		print abbreviationElement
 		abbreviationList.append(parseRow(abbreviationElement))
 	return abbreviationList
 
@@ -53,10 +51,26 @@ def export(jsonFile):
 	file = open("file.json", "w")
 	file.write(jsonFile)
 
-@click.command()
+
 def ex(index):
-	print "cool"
 	languageTable = getLanguageTable(index)
 	languageData = parseLanguage(languageTable)
 	jsonData = toJSON(languageData)
 	export(jsonData)
+
+
+if "-l" in sys.argv:
+	listLanguages()
+
+elif "-g" in sys.argv:
+	index = sys.argv.index("-g")+1
+	
+	if sys.argv[index].isdigit():
+		ex(index)
+
+	elif sys.argv[index] == "-all":
+		pass
+
+	else:
+		print "You need to specify one of the following indices or add --all"
+		listLanguages()
