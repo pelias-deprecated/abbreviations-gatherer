@@ -2,6 +2,9 @@ import BeautifulSoup
 import urllib2
 import json
 import sys
+import os
+
+print "Loading abbvreviations data"
 
 def getParsedSite():
 	try:
@@ -16,20 +19,26 @@ def getLanguageTable(index):
 	parsed = getParsedSite()
 	return parsed.findAll("table")[index]
 
-def listLanguages():
+def getLanguageList():
 	parsed = getParsedSite()
 	i = 0
+	languageList = []
 	for header in parsed.findAll("h2"):
 		if header.span and header.span.string != "Template for another language":
 			span = header.span
-			print i, "-", span.string
+			languageList.append(str(i) + "-" + span.string)
 			i += 1
+	return languageList
+
 
 def parseLanguage(languageTable):
 	abbreviationList = []
 	for abbreviationElement in languageTable.findAll("tr")[1:]:
 		abbreviationList.append(parseRow(abbreviationElement))
-	return abbreviationList
+	print len(abbreviationList), "values written in JSON file"
+	langDict = {"language": "", "abbreviationlist":abbreviationList}
+	return langDict
+
 
 def parseRow(rowElement):
 	assert len(rowElement.findAll("td")) == 6
@@ -47,20 +56,28 @@ def parseRow(rowElement):
 def toJSON(dict):
 	return json.dumps(dict)
 
-def export(jsonFile):
-	file = open("file.json", "w")
-	file.write(jsonFile)
+def export(jsonData):
+
+	if not os.path.exists("out"):
+		os.makedirs("out")
+	path = "out/" + json.loads(jsonData)["language"][:3].lower()+".json"
+	file = open(path, "w")
+	file.write(jsonData)
+	print "Data written in " + path
 
 
 def ex(index):
 	languageTable = getLanguageTable(index)
 	languageData = parseLanguage(languageTable)
+	languageData["language"] = languageList[int(index)][languageList[int(index)].find("-")+1:]
 	jsonData = toJSON(languageData)
 	export(jsonData)
 
+languageList = getLanguageList()
 
 if "-l" in sys.argv:
-	listLanguages()
+	for lan in languageList:
+		print lan
 
 elif "-g" in sys.argv:
 	index = sys.argv.index("-g")+1
