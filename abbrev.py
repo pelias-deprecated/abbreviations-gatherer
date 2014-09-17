@@ -91,3 +91,6 @@ elif "-g" in sys.argv:
 	else:
 		print "You need to specify one of the following indices or add --all"
 		listLanguages()
+
+else:
+	print "You need to specify an option"
