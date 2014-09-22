@@ -16,14 +16,12 @@ def getParsedSite():
 		sys.exit()
 
 def getLanguageTable(index):
-	parsed = getParsedSite()
-	return parsed.findAll("table")[index]
+	return parsedSite.findAll("table")[index]
 
 def getLanguageList():
-	parsed = getParsedSite()
 	i = 0
 	languageList = []
-	for header in parsed.findAll("h2"):
+	for header in parsedSite.findAll("h2"):
 		if header.span and header.span.string != "Template for another language":
 			span = header.span
 			languageList.append(str(i) + "-" + span.string)
@@ -53,11 +51,14 @@ def parseRow(rowElement):
 	rowDic["notes"] = tds[5].text
 	return rowDic
 
+def getAllLangs():
+	for index in range(len(getLanguageList())-1):
+		ex(index)
+
 def toJSON(dict):
 	return json.dumps(dict)
 
 def export(jsonData):
-
 	if not os.path.exists("out"):
 		os.makedirs("out")
 	path = "out/" + json.loads(jsonData)["language"][:3].lower()+".json"
@@ -65,15 +66,15 @@ def export(jsonData):
 	file.write(jsonData)
 	print "Data written in " + path
 
-
 def ex(index):
 	languageTable = getLanguageTable(index)
 	languageData = parseLanguage(languageTable)
+	languageList = getLanguageList()
 	languageData["language"] = languageList[int(index)][languageList[int(index)].find("-")+1:]
 	jsonData = toJSON(languageData)
 	export(jsonData)
 
-languageList = getLanguageList()
+parsedSite = getParsedSite()
 
 if "-l" in sys.argv:
 	for lan in languageList:
