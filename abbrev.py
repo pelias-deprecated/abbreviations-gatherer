@@ -84,14 +84,18 @@ elif "-g" in sys.argv:
 	index = sys.argv.index("-g")+1
 	
 	if sys.argv[index].isdigit():
-		ex(index)
-
-	elif sys.argv[index] == "-all":
-		pass
+		ex(int(sys.argv[index]))
 
 	else:
 		print "You need to specify one of the following indices or add --all"
 		listLanguages()
 
+elif "--all" in sys.argv:
+	getAllLangs()
+
 else:
-	print "You need to specify an option"
+	print ""
+	print "Use -g [language index] to generate abbreviations data for a language"
+	print "Use --all to generate all files"
+	print "Use -l to list available languages"
+	print ""
