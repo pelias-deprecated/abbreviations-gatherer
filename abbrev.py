@@ -4,8 +4,6 @@ import json
 import sys
 import os
 
-print "Loading abbvreviations data"
-
 def getParsedSite():
 	try:
 		rawdata = urllib2.urlopen("http://wiki.openstreetmap.org/wiki/Name_finder:Abbreviations")
@@ -19,6 +17,7 @@ def getLanguageTable(index):
 	return parsedSite.findAll("table")[index]
 
 def getLanguageList():
+	print "Loading abbreviations data"
 	i = 0
 	languageList = []
 	for header in parsedSite.findAll("h2"):
@@ -33,7 +32,6 @@ def parseLanguage(languageTable):
 	abbreviationList = []
 	for abbreviationElement in languageTable.findAll("tr")[1:]:
 		abbreviationList.append(parseRow(abbreviationElement))
-	print len(abbreviationList), "values written in JSON file"
 	langDict = {"language": "", "abbreviationlist":abbreviationList}
 	return langDict
 
@@ -74,14 +72,39 @@ def ex(index):
 	jsonData = toJSON(languageData)
 	export(jsonData)
 
+def getOverlapping(index):
+	languageTable = getLanguageTable(index)
+	languageData = parseLanguage(languageTable)
+	invertedIndex = {}
+	for key in languageData["abbreviationlist"]:
+		if key["abbreviation"] not in invertedIndex:
+			invertedIndex[key["abbreviation"]] = [key["fullword"]]
+		else:
+			invertedIndex[key["abbreviation"]].append(key["fullword"])
+	overlaps = {}
+	for abbreviation in invertedIndex:
+		if len(invertedIndex[abbreviation]) > 1:
+			overlaps[abbreviation] = invertedIndex[abbreviation]
+	if not os.path.exists("overlaps"):
+		os.makedirs("overlaps")
+	languageList = getLanguageList()
+	path = "overlaps/" + languageList[int(index)][languageList[int(index)].find("-")+1:] + ".json"
+	file = open(path, "w")
+	file.write(json.dumps(overlaps))
+
+
 parsedSite = getParsedSite()
 
 if "-l" in sys.argv:
-	for lan in languageList:
+	for lan in getLanguageList():
 		print lan
 
+if "-o" in sys.argv:
+	index = int(sys.argv[sys.argv.index("-o")+1])
+	conflicts = getOverlapping(index)
+
 elif "-g" in sys.argv:
-	index = sys.argv.index("-g")+1
+	index = int(sys.argv[sys.argv.index("-g")+1])
 	
 	if sys.argv[index].isdigit():
 		ex(int(sys.argv[index]))
