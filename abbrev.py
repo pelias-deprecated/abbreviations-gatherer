@@ -45,12 +45,12 @@ def parseRow(rowElement):
 	keys = ["abbreviation", "concatenated", "separable", "implemented", "notes"]
 	rowDic = dict.fromkeys(keys)
 	tds = rowElement.findAll("td")
-	rowDic["abbreviations"] = [tds[1].text]
+	rowDic["abbreviations"] = [tds[1].text.lower()]
 	rowDic["concatenated"] = True if tds[2].text != 'no' else False
 	rowDic["separable"] = tds[3].text
 	rowDic["implemented"] = True if tds[2].text != 'no' else False
 	rowDic["notes"] = tds[5].text
-	return (tds[0].text, rowDic)
+	return (tds[0].text.lower(), rowDic)
 
 def getAllLangs():
 	for index in range(len(getLanguageList())-1):
