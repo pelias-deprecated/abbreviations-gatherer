@@ -29,25 +29,28 @@ def getLanguageList():
 
 
 def parseLanguage(languageTable):
-	abbreviationList = []
+	abbreviationList = {}
 	for abbreviationElement in languageTable.findAll("tr")[1:]:
-		abbreviationList.append(parseRow(abbreviationElement))
-	langDict = {"language": "", "abbreviationlist":abbreviationList}
+		row = parseRow(abbreviationElement)
+		if row[0] not in abbreviationList:
+			abbreviationList[row[0]] = row[1]
+		else:
+			abbreviationList[row[0]]["abbreviations"] += row[1]["abbreviations"]
+	langDict = {"language": "", "abbreviationlist": abbreviationList}
 	return langDict
 
 
 def parseRow(rowElement):
 	assert len(rowElement.findAll("td")) == 6
-	keys = ["fullword", "abbreviation", "concatenated", "separable", "implemented", "notes"]
+	keys = ["abbreviation", "concatenated", "separable", "implemented", "notes"]
 	rowDic = dict.fromkeys(keys)
 	tds = rowElement.findAll("td")
-	rowDic["fullword"] = tds[0].text
-	rowDic["abbreviation"] = tds[1].text
+	rowDic["abbreviations"] = [tds[1].text]
 	rowDic["concatenated"] = True if tds[2].text != 'no' else False
 	rowDic["separable"] = tds[3].text
 	rowDic["implemented"] = True if tds[2].text != 'no' else False
 	rowDic["notes"] = tds[5].text
-	return rowDic
+	return (tds[0].text, rowDic)
 
 def getAllLangs():
 	for index in range(len(getLanguageList())-1):
